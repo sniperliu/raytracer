@@ -3,6 +3,8 @@ use std::io::{self, Write};
 mod vec3;
 mod color;
 mod ray;
+mod hittable;
+mod sphere;
 
 fn hit_sphere(center: &vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
     let oc = r.origin - *center;
@@ -16,7 +18,6 @@ fn hit_sphere(center: &vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
     } else {
          (-half_b - discriminant.sqrt()) / a
     }
-    // discriminant > 0.
 }
 
 fn ray_color(r: &ray::Ray) -> color::Color {
