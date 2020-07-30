@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter, self};
-use std::ops::{Add, AddAssign, Sub, Mul, MulAssign, Div, DivAssign, Neg};
+use std::fmt::{self, Display, Formatter};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
@@ -11,13 +11,8 @@ pub struct Vec3 {
 pub type Point3 = Vec3;
 
 impl Vec3 {
-
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Vec3 {
-            x: x,
-            y: y,
-            z: z,
-        }
+        Vec3 { x: x, y: y, z: z }
     }
 
     pub fn length_squared(&self) -> f32 {
@@ -33,9 +28,11 @@ impl Vec3 {
     }
 
     pub fn cross(&self, other: Self) -> Self {
-        Self::new(self.y * other.z - self.z * other.y,
-                  self.z * other.x - self.x * other.z,
-                  self.x * other.y - self.y * other.x)
+        Self::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
     }
 
     pub fn normalize(&self) -> Self {
@@ -46,7 +43,6 @@ impl Vec3 {
 }
 
 impl Add for Vec3 {
-
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
@@ -73,7 +69,6 @@ impl AddAssign for Vec3 {
 }
 
 impl Sub for Vec3 {
-
     type Output = Self;
 
     fn sub(self, v: Self) -> Self {
@@ -86,7 +81,6 @@ impl Sub for Vec3 {
 }
 
 impl Mul for Vec3 {
-
     type Output = Self;
 
     fn mul(self, v: Self) -> Self {
@@ -99,7 +93,6 @@ impl Mul for Vec3 {
 }
 
 impl Mul<f32> for Vec3 {
-
     type Output = Self;
 
     fn mul(self, t: f32) -> Self::Output {
@@ -112,7 +105,6 @@ impl Mul<f32> for Vec3 {
 }
 
 impl Mul<Vec3> for f32 {
-
     type Output = Vec3;
 
     fn mul(self, v: Vec3) -> Self::Output {
@@ -126,17 +118,14 @@ impl Mul<Vec3> for f32 {
 
 // TODO use macro to implement it
 impl MulAssign<f32> for Vec3 {
-
     fn mul_assign(&mut self, scalar: f32) {
         self.x *= scalar;
         self.y *= scalar;
         self.z *= scalar;
     }
-
 }
 
 impl Div<f32> for Vec3 {
-
     type Output = Self;
 
     fn div(self, t: f32) -> Self::Output {
@@ -149,7 +138,6 @@ impl Div<f32> for Vec3 {
 }
 
 impl DivAssign<f32> for Vec3 {
-
     fn div_assign(&mut self, scalar: f32) {
         self.x /= scalar;
         self.y /= scalar;
@@ -158,7 +146,6 @@ impl DivAssign<f32> for Vec3 {
 }
 
 impl Neg for Vec3 {
-
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -171,22 +158,21 @@ impl Neg for Vec3 {
 }
 
 impl PartialEq for Vec3 {
-
     fn eq(&self, other: &Self) -> bool {
-        self.x == other.x &&
-            self.y == other.y &&
-            self.z == other.z
+        self.x == other.x && self.y == other.y && self.z == other.z
     }
-
 }
-
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
-    const ORIGIN: Vec3 = Vec3{ x: 0., y: 0., z: 0. };
+    const ORIGIN: Vec3 = Vec3 {
+        x: 0.,
+        y: 0.,
+        z: 0.,
+    };
 
     #[test]
     fn test_new() {
@@ -198,8 +184,7 @@ mod tests {
 
     #[test]
     fn test_display() {
-        assert_eq!(format!("{}", ORIGIN),
-                   "0 0 0");
+        assert_eq!(format!("{}", ORIGIN), "0 0 0");
     }
 
     #[test]
@@ -225,26 +210,23 @@ mod tests {
 
     #[test]
     fn test_negate() {
-        assert_eq!(Vec3::new(-1., -1., -1.),
-                   Vec3::new(1., 1., 1.).neg());
+        assert_eq!(Vec3::new(-1., -1., -1.), Vec3::new(1., 1., 1.).neg());
 
-        assert_eq!(Vec3::new(1., 1., 1.),
-                   Vec3::new(-1., -1., -1.).neg());
+        assert_eq!(Vec3::new(1., 1., 1.), Vec3::new(-1., -1., -1.).neg());
 
-        assert_eq!(Vec3::new(0., 0., 0.),
-                   Vec3::new(0., 0., 0.).neg());
+        assert_eq!(Vec3::new(0., 0., 0.), Vec3::new(0., 0., 0.).neg());
     }
 
     #[test]
     fn test_add() {
-        assert_eq!(Vec3::new(2., 3., 4.),
-                   Vec3::new(2., 3., 4.) + ORIGIN);
-        assert_eq!(Vec3::new(4., 6., 8.),
-                   Vec3::new(2., 3., 4.) + Vec3::new(2., 3., 4.));
+        assert_eq!(Vec3::new(2., 3., 4.), Vec3::new(2., 3., 4.) + ORIGIN);
+        assert_eq!(
+            Vec3::new(4., 6., 8.),
+            Vec3::new(2., 3., 4.) + Vec3::new(2., 3., 4.)
+        );
 
         let v1 = Vec3::new(2., 3., 4.);
-        assert_eq!(Vec3::new(4., 6., 8.),
-                   v1 + v1);
+        assert_eq!(Vec3::new(4., 6., 8.), v1 + v1);
     }
 
     #[test]
@@ -257,10 +239,8 @@ mod tests {
         assert_eq!(ORIGIN, ORIGIN * 5.);
         assert_eq!(ORIGIN, 5. * ORIGIN);
 
-        assert_eq!(Vec3::new(5., 5., 5.),
-                   Vec3::new(1., 1., 1.) * 5.);
-        assert_eq!(Vec3::new(5., 5., 5.),
-                   5. * Vec3::new(1., 1., 1.));
+        assert_eq!(Vec3::new(5., 5., 5.), Vec3::new(1., 1., 1.) * 5.);
+        assert_eq!(Vec3::new(5., 5., 5.), 5. * Vec3::new(1., 1., 1.));
     }
 
     #[test]
@@ -268,8 +248,7 @@ mod tests {
         assert_eq!(ORIGIN, ORIGIN / 3.);
 
         let v1 = Vec3::new(1., 1., 1.);
-        assert_eq!(Vec3::new(0.5, 0.5, 0.5),
-                   v1 / 2.);
+        assert_eq!(Vec3::new(0.5, 0.5, 0.5), v1 / 2.);
     }
 
     #[test]
@@ -284,8 +263,10 @@ mod tests {
         assert_eq!(0., ORIGIN.length());
 
         assert_eq!(1., Vec3::new(1., 0., 0.).length());
-        assert_eq!(Vec3::new(1., 0., 0.).length_squared().sqrt(),
-                   Vec3::new(1., 0., 0.).length());
+        assert_eq!(
+            Vec3::new(1., 0., 0.).length_squared().sqrt(),
+            Vec3::new(1., 0., 0.).length()
+        );
     }
 
     #[test]
@@ -299,13 +280,14 @@ mod tests {
     fn test_cross() {
         assert_eq!(ORIGIN, ORIGIN.cross(ORIGIN));
 
-        assert_eq!(Vec3::new(0., 0., 1.),
-                   Vec3::new(1., 0., 0.).cross(Vec3::new(0., 1., 0.)));
+        assert_eq!(
+            Vec3::new(0., 0., 1.),
+            Vec3::new(1., 0., 0.).cross(Vec3::new(0., 1., 0.))
+        );
     }
 
     #[test]
     fn test_normalize() {
-        assert_eq!(Vec3::new(1., 0., 0.),
-                   Vec3::new(1., 0., 0.).normalize())
+        assert_eq!(Vec3::new(1., 0., 0.), Vec3::new(1., 0., 0.).normalize())
     }
 }

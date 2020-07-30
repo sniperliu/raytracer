@@ -18,7 +18,11 @@ impl HitRecord {
             t: t,
             p: spot,
             is_front_face: is_front_face,
-            normal: if is_front_face { outward_normal } else { -outward_normal },
+            normal: if is_front_face {
+                outward_normal
+            } else {
+                -outward_normal
+            },
         }
     }
 }
