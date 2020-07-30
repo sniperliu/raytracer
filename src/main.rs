@@ -5,26 +5,16 @@ mod color;
 mod ray;
 mod hittable;
 mod sphere;
+mod hittable_list;
 
-fn hit_sphere(center: &vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
-    let oc = r.origin - *center;
-    let a = r.direction.length_squared();
-    let half_b = oc.dot(r.direction);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
+use hittable::Hittable;
+use crate::hittable_list::HittableList;
+use sphere::Sphere;
+use vec3::Vec3;
 
-    if discriminant < 0. {
-         -1.0
-    } else {
-         (-half_b - discriminant.sqrt()) / a
-    }
-}
-
-fn ray_color(r: &ray::Ray) -> color::Color {
-    let t =  hit_sphere(&vec3::Vec3::new(0., 0., -1.), 0.5, &r);
-    if t > 0.0 {
-        let N = (r.at(t) - vec3::Vec3::new(0., 0., -1.)).normalize();
-        color::Color(vec3::Vec3::new(N.x + 1., N.y + 1., N.z + 1.) * 0.5)
+fn ray_color(r: &ray::Ray, w: &HittableList) -> color::Color {
+    if let Some(rec) = w.hit(&r, 0., f32::MAX) {
+        color::Color(0.5 * (rec.normal + Vec3::new(1., 1., 1.)))
     } else {
         let direction = r.direction.normalize();
         let t = 0.5 * (direction.y + 1.);
@@ -38,6 +28,10 @@ fn main() {
     let aspect_ratio: f32 = 16.0 / 9.0;
     let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
+
+    let mut world = HittableList{ objects: Vec::new(), };
+    world.add(Box::new(Sphere{ center: Vec3::new(0., 0., -1.), radius: 0.5 }));
+    world.add(Box::new(Sphere{ center: Vec3::new(0., -100.5, -1.), radius: 100. }));
 
     // Camera
     let viewport_height: f32 = 2.0;
@@ -70,7 +64,7 @@ fn main() {
             // let color = color::Color(vec3::Vec3{ x: i as f32 / (image_width - 1) as f32,
             //                                      y: j as f32 / (image_height - 1) as f32,
             //                                      z: 0.25 });
-            let color = ray_color(&r);
+            let color = ray_color(&r, &world);
 
             write!(handle, "{}", color).unwrap();
         }

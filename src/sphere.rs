@@ -2,9 +2,9 @@ use crate::ray::Ray;
 use crate::hittable::{Hittable, HitRecord};
 use crate::vec3::{Point3, Vec3};
 
-struct Sphere {
-    center: Point3,
-    radius: f32,
+pub struct Sphere {
+    pub center: Point3,
+    pub radius: f32,
 }
 
 impl Hittable for Sphere {
