@@ -8,7 +8,7 @@ struct Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool {
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = r.origin - self.center;
         let a = r.direction.length_squared();
         let half_b = oc.dot(r.direction);
@@ -20,25 +20,23 @@ impl Hittable for Sphere {
 
             let temp = (-half_b - root) / a;
             if temp < t_max && temp > t_min {
-                rec.t = temp;
-                rec.p = r.at(temp);
-                let outward_normal = (rec.p - self.center) / self.radius;
-                rec.set_face_normal(r, &outward_normal);
-                return true;
+                let hit_at = r.at(temp);
+                let outward_normal = (hit_at - self.center) / self.radius;
+                let is_front_face = r.direction.dot(outward_normal) < 0.;
+
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal));
             }
 
             let temp = (-half_b + root) / a;
             if temp < t_max && temp > t_min {
-                rec.t = temp;
-                rec.p = r.at(temp);
-                let outward_normal = (rec.p - self.center) / self.radius;
-                rec.set_face_normal(r, &outward_normal);
-                return true;
-            } else {
-                return false;
+                let hit_at = r.at(temp);
+                let outward_normal = (hit_at - self.center) / self.radius;
+                let is_front_face = r.direction.dot(outward_normal) < 0.;
+
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal));
             }
-        } else {
-            return false;
         }
+
+        return None;
     }
 }
