@@ -1,4 +1,3 @@
-use rand::Rng;
 use rand::distributions::{Distribution, Standard};
 use std::fmt::{self, Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};

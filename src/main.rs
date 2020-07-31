@@ -23,7 +23,7 @@ fn ray_color(r: &ray::Ray, w: &HittableList, depth: i32) -> color::Color {
         return color::Color(Vec3::new(0., 0., 0.));
     }
 
-    if let Some(rec) = w.hit(&r, 0., f32::MAX) {
+    if let Some(rec) = w.hit(&r, 0.001, f32::MAX) {
         let target = rec.p + rec.normal + random_in_unit_sphere();
         let ray = Ray{ origin: rec.p, direction: target - rec.p};
         color::Color(0.5 * ray_color(&ray, w, depth - 1).0)
