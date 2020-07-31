@@ -1,3 +1,5 @@
+use rand::{self, Rng};
+
 use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::{Point3};
@@ -38,5 +40,22 @@ impl Hittable for Sphere {
         }
 
         return None;
+    }
+}
+
+// TODO implement traits in rand crate
+pub fn random_in_unit_sphere() -> Point3 {
+    let mut rng = rand::thread_rng();
+
+    loop {
+        let p = Point3 {
+            x: rng.gen_range(-1., 1.),
+            y: rng.gen_range(-1., 1.),
+            z: rng.gen_range(-1., 1.),
+        };
+
+        if p.length_squared() < 1.0 {
+            return p;
+        }
     }
 }

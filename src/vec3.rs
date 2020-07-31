@@ -1,3 +1,5 @@
+use rand::Rng;
+use rand::distributions::{Distribution, Standard};
 use std::fmt::{self, Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
@@ -160,6 +162,16 @@ impl Neg for Vec3 {
 impl PartialEq for Vec3 {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y && self.z == other.z
+    }
+}
+
+impl Distribution<Vec3> for Standard {
+    fn sample<R>(&self, rng : &mut R) -> Vec3 where R: rand::Rng + ?Sized {
+        Vec3 {
+            x: rng.gen(),
+            y: rng.gen(),
+            z: rng.gen(),
+        }
     }
 }
 
