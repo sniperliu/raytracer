@@ -52,9 +52,9 @@ fn write_color(out: &std::io::Stdout, pixel_color: Color, samples_per_pixel: i32
     let mut b = pixel_color.0.z;
 
     let scale = 1.0 / samples_per_pixel as f32;
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = (r * scale).sqrt();
+    g = (g * scale).sqrt();
+    b = (b * scale).sqrt();
 
     write!(
         handle,
