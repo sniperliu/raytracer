@@ -1,3 +1,5 @@
+use crate::vec3::Vec3;
+use std::f32::consts::PI;
 use rand::{self, Rng};
 
 use crate::hittable::{HitRecord, Hittable};
@@ -58,4 +60,14 @@ pub fn random_in_unit_sphere() -> Point3 {
             return p;
         }
     }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    let mut rng = rand::thread_rng();
+
+    let a: f32 = rng.gen_range(0., 2. * PI);
+    let z: f32 = rng.gen_range(-1., 1.);
+    let r: f32 = (1. - z * z).sqrt();
+
+    Vec3::new(r * a.cos(), r * a.sin(), z)
 }
