@@ -12,7 +12,7 @@ mod vec3;
 use crate::hittable_list::HittableList;
 use camera::Camera;
 use hittable::Hittable;
-use sphere::{Sphere, random_unit_vector};
+use sphere::{Sphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
 
@@ -24,7 +24,7 @@ fn ray_color(r: &ray::Ray, w: &HittableList, depth: i32) -> color::Color {
     }
 
     if let Some(rec) = w.hit(&r, 0.001, f32::MAX) {
-        let target = rec.p + rec.normal + random_unit_vector();
+        let target = rec.p + rec.normal + random_in_hemisphere(&rec.normal);
         let ray = Ray{ origin: rec.p, direction: target - rec.p};
         color::Color(0.5 * ray_color(&ray, w, depth - 1).0)
     } else {
