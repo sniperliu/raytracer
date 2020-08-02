@@ -1,5 +1,6 @@
 use crate::color::Color;
 use std::io::{self, Write};
+use std::rc::Rc;
 
 mod camera;
 mod color;
@@ -8,6 +9,7 @@ mod hittable_list;
 mod ray;
 mod sphere;
 mod vec3;
+mod material;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
@@ -15,6 +17,7 @@ use hittable::Hittable;
 use sphere::{Sphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
+use material::{Lambertian, Metal};
 
 use rand::Rng;
 
@@ -24,9 +27,14 @@ fn ray_color(r: &ray::Ray, w: &HittableList, depth: i32) -> color::Color {
     }
 
     if let Some(rec) = w.hit(&r, 0.001, f32::MAX) {
-        let target = rec.p + rec.normal + random_in_hemisphere(&rec.normal);
-        let ray = Ray{ origin: rec.p, direction: target - rec.p};
-        color::Color(0.5 * ray_color(&ray, w, depth - 1).0)
+        if let Some((scattered, attenuation)) = rec.material.scatter(&r, &rec) {
+            Color(attenuation.0 * ray_color(&scattered, w, depth - 1).0)
+        } else {
+            Color(Vec3::new(0., 0., 0.))
+        }
+        // let target = rec.p + rec.normal + random_in_hemisphere(&rec.normal);
+        // let ray = Ray{ origin: rec.p, direction: target - rec.p};
+        // color::Color(0.5 * ray_color(&ray, w, depth - 1).0)
     } else {
         let direction = r.direction.normalize();
         let t = 0.5 * (direction.y + 1.);
@@ -79,13 +87,31 @@ fn main() {
     let mut world = HittableList {
         objects: Vec::new(),
     };
-    world.add(Box::new(Sphere {
-        center: Vec3::new(0., 0., -1.),
-        radius: 0.5,
-    }));
+
+    let material_ground = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.8, 0.8, 0.)) });
+    let material_center = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.7, 0.3, 0.3)) });
+    let material_left = Rc::new(Metal{ albedo: Color(Vec3::new(0.8, 0.8, 0.8)) });
+    let material_right = Rc::new(Metal{ albedo: Color(Vec3::new(0.8, 0.6, 0.2)) });
+
     world.add(Box::new(Sphere {
         center: Vec3::new(0., -100.5, -1.),
         radius: 100.,
+        material: material_ground
+    }));
+    world.add(Box::new(Sphere {
+        center: Vec3::new(0., 0., -1.),
+        radius: 0.5,
+        material: material_center
+    }));
+    world.add(Box::new(Sphere {
+        center: Vec3::new(-1., 0., -1.),
+        radius: 0.5,
+        material: material_left,
+    }));
+    world.add(Box::new(Sphere {
+        center: Vec3::new(1., 0., -1.),
+        radius: 0.5,
+        material: material_right,
     }));
 
     // Camera

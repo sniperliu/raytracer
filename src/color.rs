@@ -1,6 +1,7 @@
 use crate::vec3;
 use std::fmt;
 
+#[derive(Copy, Clone)]
 pub struct Color(pub vec3::Vec3);
 
 impl fmt::Display for Color {

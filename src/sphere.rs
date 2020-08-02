@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::vec3::Vec3;
 use std::f32::consts::PI;
 use rand::{self, Rng};
@@ -5,10 +7,12 @@ use rand::{self, Rng};
 use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::{Point3};
+use crate::material::Material;
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f32,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -28,7 +32,7 @@ impl Hittable for Sphere {
                 let outward_normal = (hit_at - self.center) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal));
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
             }
 
             let temp = (-half_b + root) / a;
@@ -37,7 +41,7 @@ impl Hittable for Sphere {
                 let outward_normal = (hit_at - self.center) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal));
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
             }
         }
 
