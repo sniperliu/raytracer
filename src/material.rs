@@ -1,3 +1,4 @@
+use crate::sphere::random_in_unit_sphere;
 use crate::vec3::Vec3;
 use crate::sphere::random_unit_vector;
 use crate::ray::Ray;
@@ -30,7 +31,17 @@ fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
 }
 
 pub struct Metal {
-    pub albedo: Color
+    pub albedo: Color,
+    pub fuzzy: f32,
+}
+
+impl Metal {
+    pub fn new(albedo: Color, fuzzy: f32) -> Self {
+        Metal {
+            albedo: albedo,
+            fuzzy: fuzzy.min(1.0),
+        }
+    }
 }
 
 impl Material for Metal {
@@ -39,7 +50,7 @@ impl Material for Metal {
         let reflected = reflect(&r_in.direction.normalize(), &rec.normal);
         let scattered = Ray {
             origin: rec.p,
-            direction: reflected,
+            direction: reflected + self.fuzzy * random_in_unit_sphere(),
         };
         if scattered.direction.dot(rec.normal) > 0. {
             Some((scattered, self.albedo))
