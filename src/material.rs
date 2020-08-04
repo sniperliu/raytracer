@@ -78,12 +78,25 @@ impl Material for Dielectric {
         let etai_over_etat = if rec.is_front_face { 1.0 / self.ref_idx } else { self.ref_idx };
 
         let unit_direction = r_in.direction.normalize();
-        let refracted = refract(unit_direction, rec.normal, etai_over_etat);
-        let scattered = Ray {
-            origin: rec.p,
-            direction: refracted,
-        };
 
-        Some((scattered, attenuation))
+        let cos_theta = (-unit_direction).dot(rec.normal).min(1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        if etai_over_etat * sin_theta > 1.0 {
+            let reflected = reflect(&unit_direction, &rec.normal);
+            let scattered = Ray {
+                origin: rec.p,
+                direction: reflected,
+            };
+            Some((scattered, attenuation))
+        } else {
+            let refracted = refract(unit_direction, rec.normal, etai_over_etat);
+            let scattered = Ray {
+                origin: rec.p,
+                direction: refracted,
+            };
+
+            Some((scattered, attenuation))
+        }
+
     }
 }
