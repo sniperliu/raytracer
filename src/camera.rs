@@ -1,7 +1,7 @@
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 
-use rand;
+use rand::{self, Rng};
 
 pub struct Camera {
     pub origin: Point3,
@@ -15,10 +15,12 @@ pub struct Camera {
 }
 
 pub fn random_in_unit_disk() -> Point3 {
+    let mut rng = rand::thread_rng();
+
     loop {
         let p = Point3{
-            x: rand::random::<f32>(),
-            y: rand::random::<f32>(),
+            x: rng.gen_range(-1., 1.),
+            y: rng.gen_range(-1., 1.),
             z: 0.
         };
 

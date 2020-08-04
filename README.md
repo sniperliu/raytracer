@@ -2,6 +2,8 @@
 
 Learning raytracing with [Ray Tracing In One Week Series](https://github.com/RayTracing/raytracing.github.io).
 
+1. [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+
 ## Development
 
 ```shell
@@ -12,4 +14,12 @@ cargo build
 
 ```shell
 cargo run > image.ppm
+
+# To render the complex scene, please use release build.
+# btw, still slow for now :(
+cargo run --release > image.ppm
 ```
+
+## Showcase
+
+![](./img/random_scene.jpg)

@@ -76,58 +76,99 @@ fn write_color(out: &std::io::Stdout, pixel_color: Color, samples_per_pixel: i32
     .unwrap();
 }
 
-fn main() {
-    let mut rng = rand::thread_rng();
-
-    // Image
-    let aspect_ratio: f32 = 16.0 / 9.0;
-    let image_width: usize = 400;
-    let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
-    let samples_per_pixel = 100;
-    let max_depth = 50;
-
-    let R = (PI / 4.).cos();
+fn random_scene() -> HittableList {
     let mut world = HittableList {
         objects: Vec::new(),
     };
 
-    let material_ground = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.8, 0.8, 0.)) });
-    let material_center = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.1, 0.2, 0.5)) });
-    let material_left = Rc::new(Dielectric{ ref_idx: 1.5 });
-    let material_right = Rc::new(Metal::new(Color(Vec3::new(0.8, 0.6, 0.2)), 0.));
-
+    let material_ground = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.5, 0.5, 0.5)) });
     world.add(Box::new(Sphere {
-        center: Vec3::new(0., -100.5, -1.),
-        radius: 100.,
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
         material: material_ground,
     }));
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = rand::random::<f32>();
+            let center = Vec3::new(a as f32 + 0.9 * rand::random::<f32>(),
+                                   0.2,
+                                   b as f32 + 0.8 * rand::random::<f32>());
+
+            if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
+
+                if choose_mat < 0.8 {
+                    // diffuse
+                    let albedo = Color(rand::random::<Vec3>() * rand::random::<Vec3>());
+                    world.add(Box::new(Sphere {
+                        center: center,
+                        radius: 0.2,
+                        material: Rc::new(Lambertian{ albedo: albedo }),
+                    }));
+                } else if choose_mat < 0.95 {
+                    // metal
+                    let albedo = Color(rand::random::<Vec3>());
+                    let fuzz = rand::random();
+                    world.add(Box::new(Sphere {
+                        center: center,
+                        radius: 0.2,
+                        material: Rc::new(Metal::new(albedo, fuzz)),
+                    }));
+                } else {
+                    // glass
+                    world.add(Box::new(Sphere {
+                        center: center,
+                        radius: 0.2,
+                        material: Rc::new(Dielectric{ ref_idx: 1.5 }),
+                    }));
+                }
+
+            }
+        }
+    }
+
+    let material1 = Rc::new(Dielectric{ ref_idx: 1.5 });
     world.add(Box::new(Sphere {
-        center: Vec3::new(0., 0., -1.),
-        radius: 0.5,
-        material: material_center,
-    }));
-    world.add(Box::new(Sphere {
-        center: Vec3::new(-1., 0., -1.),
-        radius: 0.5,
-        material: material_left.clone(),
-    }));
-    world.add(Box::new(Sphere {
-        center: Vec3::new(-1., 0., -1.),
-        radius: -0.45,
-        material: material_left.clone(),
-    }));
-    world.add(Box::new(Sphere {
-        center: Vec3::new(1., 0., -1.),
-        radius: 0.5,
-        material: material_right,
+        center: Vec3::new(0., 1., 0.),
+        radius: 1.,
+        material: material1,
     }));
 
+    let material2 = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.4, 0.2, 0.1)) });
+    world.add(Box::new(Sphere {
+        center: Vec3::new(-4., 1., 0.),
+        radius: 1.,
+        material: material2,
+    }));
+
+    let material3 = Rc::new(Metal::new(Color(Vec3::new(0.7, 0.6, 0.5)), 0.));
+    world.add(Box::new(Sphere {
+        center: Vec3::new(4., 1., 0.),
+        radius: 1.,
+        material: material3,
+    }));
+
+    world
+}
+
+fn main() {
+    let mut rng = rand::thread_rng();
+
+    // Image
+    let aspect_ratio: f32 = 3.0 / 2.0;
+    let image_width: usize = 1200;
+    let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
+    let samples_per_pixel = 500;
+    let max_depth = 50;
+
+    let world = random_scene();
+
     // Camera
-    let look_from = Vec3::new(3., 3., 2.);
-    let look_at = Vec3::new(0., 0., -1.);
+    let look_from = Vec3::new(13., 2., 3.);
+    let look_at = Vec3::new(0., 0., 0.);
     let vup = Vec3::new(0., 1., 0.);
-    let dist_to_focus = (look_from - look_at).length();
-    let aperture = 2.0;
+    let dist_to_focus = 10.0;
+    let aperture = 0.1;
     let cam = Camera::new(look_from, look_at, vup, 20., aspect_ratio, aperture, dist_to_focus);
 
     let stdout = io::stdout();
