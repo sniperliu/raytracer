@@ -123,7 +123,12 @@ fn main() {
     }));
 
     // Camera
-    let cam = Camera::new(Vec3::new(-2., 2., 1.), Vec3::new(0., 0., -1.), Vec3::new(0., 1., 0.), 20., aspect_ratio);
+    let look_from = Vec3::new(3., 3., 2.);
+    let look_at = Vec3::new(0., 0., -1.);
+    let vup = Vec3::new(0., 1., 0.);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 2.0;
+    let cam = Camera::new(look_from, look_at, vup, 20., aspect_ratio, aperture, dist_to_focus);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();
