@@ -2,6 +2,7 @@ use crate::material::Dielectric;
 use crate::color::Color;
 use std::io::{self, Write};
 use std::rc::Rc;
+use std::f32::consts::PI;
 
 mod camera;
 mod color;
@@ -85,38 +86,27 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
+    let R = (PI / 4.).cos();
     let mut world = HittableList {
         objects: Vec::new(),
     };
 
-    let material_ground = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.8, 0.8, 0.)) });
-    let material_center = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.1, 0.2, 0.5)) });
-    let material_left = Rc::new(Dielectric{ ref_idx: 1.5 });
-    let material_right = Rc::new(Metal::new(Color(Vec3::new(0.8, 0.6, 0.2)), 0.0));
+    let material_left = Rc::new(Lambertian{ albedo: Color(Vec3::new(0., 0., 1.)) });
+    let material_right = Rc::new(Lambertian{ albedo: Color(Vec3::new(1., 0., 0.)) });
 
     world.add(Box::new(Sphere {
-        center: Vec3::new(0., -100.5, -1.),
-        radius: 100.,
-        material: material_ground
-    }));
-    world.add(Box::new(Sphere {
-        center: Vec3::new(0., 0., -1.),
-        radius: 0.5,
-        material: material_center
-    }));
-    world.add(Box::new(Sphere {
-        center: Vec3::new(-1., 0., -1.),
-        radius: 0.4,
+        center: Vec3::new(-R, 0., -1.),
+        radius: R,
         material: material_left,
     }));
     world.add(Box::new(Sphere {
-        center: Vec3::new(1., 0., -1.),
-        radius: 0.5,
+        center: Vec3::new(R, 0., -1.),
+        radius: R,
         material: material_right,
     }));
 
     // Camera
-    let cam = Camera::new();
+    let cam = Camera::new(90., aspect_ratio);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();
