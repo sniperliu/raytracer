@@ -67,6 +67,13 @@ fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
     r_out_perp + r_out_parallel
 }
 
+fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+    let r0 = (1. - ref_idx) / (1. + ref_idx);
+    let r0 = r0 * r0;
+
+    r0 + (1. - r0) * (1. - cosine).powi(5)
+}
+
 pub struct Dielectric {
     pub ref_idx: f32,
 }
@@ -88,13 +95,19 @@ impl Material for Dielectric {
                 direction: reflected,
             };
             Some((scattered, attenuation))
+        } else if rand::random::<f32>() < schlick(cos_theta, etai_over_etat) {
+            let reflected = reflect(&unit_direction, &rec.normal);
+            let scattered = Ray {
+                origin: rec.p,
+                direction: reflected,
+            };
+            Some((scattered, attenuation))
         } else {
             let refracted = refract(unit_direction, rec.normal, etai_over_etat);
             let scattered = Ray {
                 origin: rec.p,
                 direction: refracted,
             };
-
             Some((scattered, attenuation))
         }
 

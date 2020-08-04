@@ -106,7 +106,7 @@ fn main() {
     }));
     world.add(Box::new(Sphere {
         center: Vec3::new(-1., 0., -1.),
-        radius: 0.5,
+        radius: 0.4,
         material: material_left,
     }));
     world.add(Box::new(Sphere {
