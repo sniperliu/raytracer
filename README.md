@@ -3,6 +3,7 @@
 Learning raytracing with [Ray Tracing In One Week Series](https://github.com/RayTracing/raytracing.github.io).
 
 1. [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+1. [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
 
 ## Development
 
