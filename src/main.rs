@@ -16,7 +16,7 @@ mod material;
 use crate::hittable_list::HittableList;
 use camera::Camera;
 use hittable::Hittable;
-use sphere::{Sphere, random_in_hemisphere};
+use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
 use material::{Lambertian, Metal};
@@ -88,27 +88,32 @@ fn random_scene() -> HittableList {
         material: material_ground,
     }));
 
+    let mut rng = rand::thread_rng();
     for a in -11..11 {
         for b in -11..11 {
-            let choose_mat = rand::random::<f32>();
-            let center = Vec3::new(a as f32 + 0.9 * rand::random::<f32>(),
+            let choose_mat = rng.gen::<f32>();
+            let center = Vec3::new(a as f32 + 0.9 * rng.gen::<f32>(),
                                    0.2,
-                                   b as f32 + 0.8 * rand::random::<f32>());
+                                   b as f32 + 0.8 * rng.gen::<f32>());
 
             if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
 
                 if choose_mat < 0.8 {
                     // diffuse
-                    let albedo = Color(rand::random::<Vec3>() * rand::random::<Vec3>());
-                    world.add(Box::new(Sphere {
-                        center: center,
+                    let albedo = Color(rng.gen::<Vec3>() * rng.gen::<Vec3>());
+                    let center2 = center + Vec3::new(0., rng.gen_range(0., 0.5), 0.);
+                    world.add(Box::new(MovingSphere {
+                        center0: center,
+                        center1: center2,
+                        time0: 0.0,
+                        time1: 1.0,
                         radius: 0.2,
                         material: Rc::new(Lambertian{ albedo: albedo }),
                     }));
                 } else if choose_mat < 0.95 {
                     // metal
-                    let albedo = Color(rand::random::<Vec3>());
-                    let fuzz = rand::random();
+                    let albedo = Color(rng.gen::<Vec3>());
+                    let fuzz = rng.gen();
                     world.add(Box::new(Sphere {
                         center: center,
                         radius: 0.2,
@@ -155,10 +160,10 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     // Image
-    let aspect_ratio: f32 = 3.0 / 2.0;
-    let image_width: usize = 1200;
+    let aspect_ratio: f32 = 16.0 / 9.0;
+    let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
-    let samples_per_pixel = 500;
+    let samples_per_pixel = 100;
     let max_depth = 50;
 
     let world = random_scene();
@@ -169,7 +174,7 @@ fn main() {
     let vup = Vec3::new(0., 1., 0.);
     let dist_to_focus = 10.0;
     let aperture = 0.1;
-    let cam = Camera::new(look_from, look_at, vup, 20., aspect_ratio, aperture, dist_to_focus);
+    let cam = Camera::new(look_from, look_at, vup, 20., aspect_ratio, aperture, dist_to_focus, 0., 1.);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();

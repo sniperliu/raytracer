@@ -17,10 +17,7 @@ impl Material for Lambertian {
 
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
         let scatter_direction = rec.normal + random_unit_vector();
-        let scattered = Ray{
-            origin: rec.p,
-            direction: scatter_direction,
-        };
+        let scattered = Ray::new(rec.p, scatter_direction, r_in.time);
         let attenuation = self.albedo;
         Some((scattered, attenuation))
     }
@@ -48,10 +45,7 @@ impl Material for Metal {
 
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
         let reflected = reflect(&r_in.direction.normalize(), &rec.normal);
-        let scattered = Ray {
-            origin: rec.p,
-            direction: reflected + self.fuzzy * random_in_unit_sphere(),
-        };
+        let scattered = Ray::new_without_move(rec.p, reflected + self.fuzzy * random_in_unit_sphere());
         if scattered.direction.dot(rec.normal) > 0. {
             Some((scattered, self.albedo))
         } else {
@@ -90,24 +84,15 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         if etai_over_etat * sin_theta > 1.0 {
             let reflected = reflect(&unit_direction, &rec.normal);
-            let scattered = Ray {
-                origin: rec.p,
-                direction: reflected,
-            };
+            let scattered = Ray::new_without_move(rec.p, reflected);
             Some((scattered, attenuation))
         } else if rand::random::<f32>() < schlick(cos_theta, etai_over_etat) {
             let reflected = reflect(&unit_direction, &rec.normal);
-            let scattered = Ray {
-                origin: rec.p,
-                direction: reflected,
-            };
+            let scattered = Ray::new_without_move(rec.p, reflected);
             Some((scattered, attenuation))
         } else {
             let refracted = refract(unit_direction, rec.normal, etai_over_etat);
-            let scattered = Ray {
-                origin: rec.p,
-                direction: refracted,
-            };
+            let scattered = Ray::new_without_move(rec.p, refracted);
             Some((scattered, attenuation))
         }
 

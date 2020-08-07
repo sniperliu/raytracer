@@ -12,6 +12,8 @@ pub struct Camera {
     pub v: Vec3,
     pub w: Vec3,
     pub lens_radius: f32,
+    pub time0: f32,
+    pub time1: f32,
 }
 
 pub fn random_in_unit_disk() -> Point3 {
@@ -32,7 +34,7 @@ pub fn random_in_unit_disk() -> Point3 {
 
 impl Camera {
     // vertical field of view in degrees
-    pub fn new(look_from: Vec3, look_at: Vec3, vup: Vec3, vfov: f32, aspect_ratio: f32, aperture: f32, focus_dist: f32) -> Self {
+    pub fn new(look_from: Vec3, look_at: Vec3, vup: Vec3, vfov: f32, aspect_ratio: f32, aperture: f32, focus_dist: f32, t0: f32, t1: f32) -> Self {
         let theta = vfov.to_radians();
         let h = (theta / 2.).tan();
         let viewport_height: f32 = 2.0 * h;
@@ -59,6 +61,8 @@ impl Camera {
             u: u,
             v: v,
             lens_radius: lens_radius,
+            time0: t0,
+            time1: t1,
         }
     }
 
@@ -66,10 +70,12 @@ impl Camera {
         let rd = random_in_unit_disk() * self.lens_radius;
         let offset = self.u * rd.x  + self.v * rd.y;
 
+        // FIXME there should be one generator
+        let mut rng = rand::thread_rng();
         Ray {
             origin: self.origin + offset,
-            direction: self.lower_left_corner + s * self.horizontal + t * self.vertical
-                - self.origin - offset,
+            direction: self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            time: rng.gen_range(self.time0, self.time1),
         }
     }
 }

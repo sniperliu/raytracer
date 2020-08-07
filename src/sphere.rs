@@ -84,3 +84,53 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
         -in_unit_sphere
     }
 }
+
+pub struct MovingSphere {
+    pub center0: Vec3,
+    pub center1: Vec3,
+    pub time0: f32,
+    pub time1: f32,
+    pub radius: f32,
+    pub material: Rc<dyn Material>,
+}
+
+impl MovingSphere {
+    pub fn center(&self, time: f32) -> Vec3 {
+        self.center0 + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
+    }
+}
+
+impl Hittable for MovingSphere {
+
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let oc = r.origin - self.center(r.time);
+        let a = r.direction.length_squared();
+        let half_b = oc.dot(r.direction);
+        let c = oc.length_squared() - self.radius * self.radius;
+        let discriminant = half_b * half_b - a * c;
+
+        if discriminant > 0. {
+            let root = discriminant.sqrt();
+
+            let temp = (-half_b - root) / a;
+            if temp < t_max && temp > t_min {
+                let hit_at = r.at(temp);
+                let outward_normal = (hit_at - self.center(r.time)) / self.radius;
+                let is_front_face = r.direction.dot(outward_normal) < 0.;
+
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+            }
+
+            let temp = (-half_b + root) / a;
+            if temp < t_max && temp > t_min {
+                let hit_at = r.at(temp);
+                let outward_normal = (hit_at - self.center(r.time)) / self.radius;
+                let is_front_face = r.direction.dot(outward_normal) < 0.;
+
+                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+            }
+        }
+
+        return None;
+    }
+}
