@@ -18,10 +18,15 @@ impl AABB {
     pub hit(&self, r: &Ray, tmin: f32, tmax: f32) -> bool {
         for a in 0..3 {
             // TODO check float NaN & Infinit later
-            let t0 = ((self.min[a] - r.origin[a]) / r.direction[a]).min((self.max[a] - r.origin[a]) / r.direction[a]);
-            let t1 = ((self.min[a] - r.origin[a]) / r.direction[a]).max((self.max[a] - r.origin[a]) / r.direction[a]);
-            let tmin = t0.max(tmin);
-            let tmax = t1.min(tmax);
+            let inv_d = 1. / r.direction[a];
+            let mut t0 = (self.min[a] - r.origin[a]) / inv_d;
+            let mut t1 = (self.max[a] - r.origin[a]) / inv_d;
+            if inv_d < 0. {
+                std::mem::swap(&mut t0, &mut t1);
+            }
+            let tmin = if t0 > tmin { t0 } else { tmin };
+            let tmax = if t1 > tmax { t1 } else { tmax };
+
             if tmax <= tmin {
                 return false;
             }
