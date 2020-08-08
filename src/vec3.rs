@@ -1,6 +1,6 @@
 use rand::distributions::{Distribution, Standard};
 use std::fmt::{self, Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Index, Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
@@ -40,6 +40,19 @@ impl Vec3 {
         assert_ne!(0., self.length());
 
         self.clone() / self.length()
+    }
+}
+
+impl Index<usize> for Vec3 {
+    type Output = f32;
+
+    fn index(&self, i: usize) -> &<Self as std::ops::Index<usize>>::Output {
+        match i {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Invalid index."),
+        }
     }
 }
 
