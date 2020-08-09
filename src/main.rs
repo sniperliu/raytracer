@@ -4,6 +4,7 @@ use std::io::{self, Write};
 use std::rc::Rc;
 use std::f32::consts::PI;
 
+mod aabb;
 mod camera;
 mod color;
 mod hittable;

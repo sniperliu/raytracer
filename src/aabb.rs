@@ -8,14 +8,14 @@ pub struct AABB {
 }
 
 impl AABB {
-    pub new(a: Point3, b: Point3) -> Self {
+    pub fn new(a: Point3, b: Point3) -> Self {
         AABB {
             min: a,
             max: b,
         }
     }
 
-    pub hit(&self, r: &Ray, tmin: f32, tmax: f32) -> bool {
+    pub fn hit(&self, r: &Ray, tmin: f32, tmax: f32) -> bool {
         for a in 0..3 {
             // TODO check float NaN & Infinit later
             let inv_d = 1. / r.direction[a];
