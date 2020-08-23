@@ -1,4 +1,3 @@
-use crate::hittable_list::surrounding_box;
 use std::rc::Rc;
 
 use crate::vec3::Vec3;
@@ -9,7 +8,7 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::{Point3};
 use crate::material::Material;
-use crate::aabb::AABB;
+use crate::aabb::{AABB, surrounding_box};
 
 pub struct Sphere {
     pub center: Point3,
