@@ -10,6 +10,8 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub material: Rc<dyn Material>,
     pub t: f32,
+    pub u: f32,
+    pub v: f32,
     pub is_front_face: bool,
 }
 
@@ -19,10 +21,12 @@ pub trait Hittable {
 }
 
 impl HitRecord {
-    pub fn new(t: f32, spot: Point3, is_front_face: bool, outward_normal: Vec3, material: &Rc<dyn Material>) -> Self {
+    pub fn new(t: f32, spot: Point3, u: f32, v: f32, is_front_face: bool, outward_normal: Vec3, material: &Rc<dyn Material>) -> Self {
         HitRecord {
             t: t,
             p: spot,
+            u: u,
+            v: v,
             is_front_face: is_front_face,
             normal: if is_front_face {
                 outward_normal

@@ -2,9 +2,9 @@ use crate::material::Dielectric;
 use crate::color::Color;
 use std::io::{self, Write};
 use std::rc::Rc;
-use std::f32::consts::PI;
 
 mod aabb;
+// mod bvh;
 mod camera;
 mod color;
 mod hittable;
@@ -13,6 +13,7 @@ mod ray;
 mod sphere;
 mod vec3;
 mod material;
+mod texture;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
@@ -82,7 +83,7 @@ fn random_scene() -> HittableList {
         objects: Vec::new(),
     };
 
-    let material_ground = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.5, 0.5, 0.5)) });
+    let material_ground = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.5, 0.5, 0.5))));
     world.add(Box::new(Sphere {
         center: Vec3::new(0., -1000., 0.),
         radius: 1000.,
@@ -109,7 +110,7 @@ fn random_scene() -> HittableList {
                         time0: 0.0,
                         time1: 1.0,
                         radius: 0.2,
-                        material: Rc::new(Lambertian{ albedo: albedo }),
+                        material: Rc::new(Lambertian::new_from_color(albedo)),
                     }));
                 } else if choose_mat < 0.95 {
                     // metal
@@ -140,7 +141,7 @@ fn random_scene() -> HittableList {
         material: material1,
     }));
 
-    let material2 = Rc::new(Lambertian{ albedo: Color(Vec3::new(0.4, 0.2, 0.1)) });
+    let material2 = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.4, 0.2, 0.1))));
     world.add(Box::new(Sphere {
         center: Vec3::new(-4., 1., 0.),
         radius: 1.,

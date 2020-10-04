@@ -2,6 +2,7 @@ use crate::vec3::Point3;
 use crate::ray::Ray;
 
 // axis-aligned bounding boxes
+#[derive(Clone)]
 pub struct AABB {
     pub min: Point3,
     pub max: Point3,

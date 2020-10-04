@@ -1,3 +1,4 @@
+use crate::texture::{Texture, SolidColor};
 use crate::sphere::random_in_unit_sphere;
 use crate::vec3::Vec3;
 use crate::sphere::random_unit_vector;
@@ -10,7 +11,17 @@ pub trait Material {
 }
 
 pub struct Lambertian {
-    pub albedo: Color
+    pub albedo: Box<dyn Texture>,
+}
+
+impl Lambertian {
+    pub fn new_from_texture(texture: Box<dyn Texture>) -> Self {
+        Lambertian{ albedo: texture }
+    }
+
+    pub fn new_from_color(color: Color) -> Self{
+        Lambertian{ albedo: Box::new(SolidColor::new_from_color(color)) }
+    }
 }
 
 impl Material for Lambertian {
@@ -18,8 +29,8 @@ impl Material for Lambertian {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
         let scatter_direction = rec.normal + random_unit_vector();
         let scattered = Ray::new(rec.p, scatter_direction, r_in.time);
-        let attenuation = self.albedo;
-        Some((scattered, attenuation))
+        let attenuation = self.albedo.value(rec.u, rec.v, &rec.p);
+        Some((scattered, *attenuation))
     }
 }
 

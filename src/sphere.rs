@@ -16,6 +16,14 @@ pub struct Sphere {
     pub material: Rc<dyn Material>,
 }
 
+fn get_sphere_uv(p: &Point3) -> (f32, f32) {
+    let phi = p.z.atan2(p.x);
+    let theta = p.y.asin();
+    // u, v
+    (1.0 - (phi + PI) / ( 2. * PI),
+     (theta + PI / 2.) / PI)
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = r.origin - self.center;
@@ -32,8 +40,9 @@ impl Hittable for Sphere {
                 let hit_at = r.at(temp);
                 let outward_normal = (hit_at - self.center) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
+                let (u, v) = get_sphere_uv(&((hit_at - self.center) / self.radius));
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+                return Some(HitRecord::new(temp, hit_at, u, v, is_front_face, outward_normal, &self.material));
             }
 
             let temp = (-half_b + root) / a;
@@ -41,8 +50,9 @@ impl Hittable for Sphere {
                 let hit_at = r.at(temp);
                 let outward_normal = (hit_at - self.center) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
+                let (u, v) = get_sphere_uv(&((hit_at - self.center) / self.radius));
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+                return Some(HitRecord::new(temp, hit_at, u, v, is_front_face, outward_normal, &self.material));
             }
         }
 
@@ -123,8 +133,9 @@ impl Hittable for MovingSphere {
                 let hit_at = r.at(temp);
                 let outward_normal = (hit_at - self.center(r.time)) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
+                let (u, v) = get_sphere_uv(&((hit_at - self.center(r.time)) / self.radius));
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+                return Some(HitRecord::new(temp, hit_at, u, v, is_front_face, outward_normal, &self.material));
             }
 
             let temp = (-half_b + root) / a;
@@ -132,8 +143,9 @@ impl Hittable for MovingSphere {
                 let hit_at = r.at(temp);
                 let outward_normal = (hit_at - self.center(r.time)) / self.radius;
                 let is_front_face = r.direction.dot(outward_normal) < 0.;
+                let (u, v) = get_sphere_uv(&((hit_at - self.center(r.time)) / self.radius));
 
-                return Some(HitRecord::new(temp, hit_at, is_front_face, outward_normal, &self.material));
+                return Some(HitRecord::new(temp, hit_at, u, v, is_front_face, outward_normal, &self.material));
             }
         }
 
