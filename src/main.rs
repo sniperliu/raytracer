@@ -21,6 +21,7 @@ use hittable::Hittable;
 use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
+use texture::{CheckerTexture};
 use material::{Lambertian, Metal};
 
 use rand::Rng;
@@ -83,11 +84,13 @@ fn random_scene() -> HittableList {
         objects: Vec::new(),
     };
 
-    let material_ground = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.5, 0.5, 0.5))));
+    // let material_ground = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.5, 0.5, 0.5))));
+    let material_checker = Rc::new(Lambertian::new_from_texture(
+        Box::new(CheckerTexture::new(Color(Vec3::new(0.2, 0.3, 0.1)), Color(Vec3::new(0.9, 0.9, 0.9))))));
     world.add(Box::new(Sphere {
         center: Vec3::new(0., -1000., 0.),
         radius: 1000.,
-        material: material_ground,
+        material: material_checker,
     }));
 
     let mut rng = rand::thread_rng();

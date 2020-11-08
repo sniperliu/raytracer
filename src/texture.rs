@@ -24,3 +24,31 @@ impl Texture for SolidColor {
         &self.color
     }
 }
+
+pub struct CheckerTexture {
+    odd: Box<dyn Texture>,
+    even: Box<dyn Texture>,
+}
+
+impl CheckerTexture {
+    pub fn new(c1: Color, c2: Color) -> Self {
+        Self {
+            odd: Box::new(SolidColor::new_from_color(c1)),
+            even: Box::new(SolidColor::new_from_color(c2)),
+        }
+    }
+}
+
+impl Texture for CheckerTexture {
+
+    fn value(&self, u: f32, v: f32, p: &Point3) -> &Color {
+        // What is sines?
+        let sines = (10. * p.x).sin() * (10. * p.y).sin() * (10. * p.z).sin();
+        if sines < 0. {
+            self.odd.value(u, v, p)
+        } else {
+            self.even.value(u, v, p)
+        }
+    }
+
+}
