@@ -79,6 +79,28 @@ fn write_color(out: &std::io::Stdout, pixel_color: Color, samples_per_pixel: i32
     .unwrap();
 }
 
+fn two_spheres() -> HittableList {
+    let mut spheres = HittableList{
+        objects: Vec::new(),
+    };
+
+    let checker_texture = CheckerTexture::new(Color(Vec3::new(0.2, 0.3, 0.1)), Color(Vec3::new(0.9, 0.9, 0.9)));
+    let checker_material = Rc::new(Lambertian::new_from_texture(Box::new(checker_texture)));
+
+    spheres.add(Box::new(Sphere {
+        center: Vec3::new(0., -10., 0.),
+        radius: 10.,
+        material: checker_material.clone(),
+    }));
+    spheres.add(Box::new(Sphere {
+        center: Vec3::new(0., 10., 0.),
+        radius: 10.,
+        material: checker_material.clone(),
+    }));
+
+    spheres
+}
+
 fn random_scene() -> HittableList {
     let mut world = HittableList {
         objects: Vec::new(),
@@ -171,15 +193,31 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let world = random_scene();
+    let world: HittableList;
+    let look_from;
+    let look_at;
+    let vfov;
+    let mut aperture = 0.0;
+    match 0 {
+        1 => {
+            world = random_scene();
+            look_from = Vec3::new(13., 2., 3.);
+            look_at = Vec3::new(0., 0., 0.);
+            vfov = 20.0;
+            aperture = 0.1;
+        },
+        _ => {
+            world = two_spheres();
+            look_from = Vec3::new(13., 2., 3.);
+            look_at = Vec3::new(0., 0., 0.);
+            vfov = 20.0;
+        }
+    }
 
     // Camera
-    let look_from = Vec3::new(13., 2., 3.);
-    let look_at = Vec3::new(0., 0., 0.);
     let vup = Vec3::new(0., 1., 0.);
     let dist_to_focus = 10.0;
-    let aperture = 0.1;
-    let cam = Camera::new(look_from, look_at, vup, 20., aspect_ratio, aperture, dist_to_focus, 0., 1.);
+    let cam = Camera::new(look_from, look_at, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0., 1.);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();

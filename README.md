@@ -16,7 +16,7 @@ cargo build
 ```shell
 cargo run > image.ppm
 
-# To render the complex scene, please use release build.
+# To render the two spheres scene, please use release build.
 # btw, still slow for now :(
 cargo run --release > image.ppm
 ```
