@@ -1,3 +1,4 @@
+use crate::perlin::Perlin;
 use crate::material::Dielectric;
 use crate::color::Color;
 use std::io::{self, Write};
@@ -14,6 +15,7 @@ mod sphere;
 mod vec3;
 mod material;
 mod texture;
+mod perlin;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
@@ -21,7 +23,7 @@ use hittable::Hittable;
 use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
-use texture::{CheckerTexture};
+use texture::{CheckerTexture, NoiseTexture};
 use material::{Lambertian, Metal};
 
 use rand::Rng;
@@ -96,6 +98,28 @@ fn two_spheres() -> HittableList {
         center: Vec3::new(0., 10., 0.),
         radius: 10.,
         material: checker_material.clone(),
+    }));
+
+    spheres
+}
+
+fn two_perlin_spheres() -> HittableList {
+    let mut spheres = HittableList{
+        objects: Vec::new(),
+    };
+
+    let texture = NoiseTexture{ noise: Perlin::new() };
+    let material = Rc::new(Lambertian::new_from_texture(Box::new(texture)));
+
+    spheres.add(Box::new(Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        material: material.clone(),
+    }));
+    spheres.add(Box::new(Sphere {
+        center: Vec3::new(0., 2., 0.),
+        radius: 2.,
+        material: material.clone(),
     }));
 
     spheres
@@ -206,12 +230,18 @@ fn main() {
             vfov = 20.0;
             aperture = 0.1;
         },
-        _ => {
+        2 => {
             world = two_spheres();
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
-        }
+        },
+        _ => {
+            world = two_perlin_spheres();
+            look_from = Vec3::new(13., 2., 3.);
+            look_at = Vec3::new(0., 0., 0.);
+            vfov = 20.0;
+        },
     }
 
     // Camera

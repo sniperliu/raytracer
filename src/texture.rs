@@ -1,8 +1,10 @@
+use crate::Vec3;
 use crate::vec3::{self, Point3};
 use crate::color::{Color};
+use crate::perlin::{Perlin};
 
 pub trait Texture {
-    fn value(&self, u: f32, v: f32, p: &Point3) -> &Color;
+    fn value(&self, u: f32, v: f32, p: &Point3) -> Color;
 }
 
 pub struct SolidColor {
@@ -20,8 +22,8 @@ impl SolidColor {
 }
 
 impl Texture for SolidColor {
-    fn value(&self, _u: f32, _v: f32, _p: &Point3) -> &Color {
-        &self.color
+    fn value(&self, _u: f32, _v: f32, _p: &Point3) -> Color {
+        self.color
     }
 }
 
@@ -41,7 +43,7 @@ impl CheckerTexture {
 
 impl Texture for CheckerTexture {
 
-    fn value(&self, u: f32, v: f32, p: &Point3) -> &Color {
+    fn value(&self, u: f32, v: f32, p: &Point3) -> Color {
         // What is sines?
         let sines = (10. * p.x).sin() * (10. * p.y).sin() * (10. * p.z).sin();
         if sines < 0. {
@@ -51,4 +53,14 @@ impl Texture for CheckerTexture {
         }
     }
 
+}
+
+pub struct NoiseTexture {
+    pub noise: Perlin,
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, _u: f32, _v: f32, p: &Point3) -> Color {
+        Color(Vec3::new(1., 1., 1.) * self.noise.noise(p))
+    }
 }
