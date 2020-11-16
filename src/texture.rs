@@ -62,6 +62,6 @@ pub struct NoiseTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, _u: f32, _v: f32, p: &Point3) -> Color {
-        Color(Vec3::new(1., 1., 1.) * self.noise.noise(&(self.scale * *p)))
+        Color(Vec3::new(1., 1., 1.) * 0.5 * (1. + self.noise.noise(&(self.scale * *p))))
     }
 }
