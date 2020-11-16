@@ -23,7 +23,7 @@ use hittable::Hittable;
 use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
-use texture::{CheckerTexture, NoiseTexture};
+use texture::{CheckerTexture, NoiseTexture, ImageTexture};
 use material::{Lambertian, Metal};
 
 use rand::Rng;
@@ -123,6 +123,20 @@ fn two_perlin_spheres() -> HittableList {
     }));
 
     spheres
+}
+
+fn earth() -> HittableList {
+    let earth_texture = ImageTexture::new("./img/earthmap.jpg");
+    let earth_surface = Rc::new(Lambertian::new_from_texture(Box::new(earth_texture)));
+    let globe = Sphere {
+        center: Vec3::new(0., 0., 0.),
+        radius: 2.,
+        material: earth_surface.clone(),
+    };
+
+    HittableList {
+        objects: vec![Box::new(globe)],
+    }
 }
 
 fn random_scene() -> HittableList {
@@ -236,12 +250,18 @@ fn main() {
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
         },
-        _ => {
+        3 => {
             world = two_perlin_spheres();
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
         },
+        _ => {
+            world = earth();
+            look_from = Vec3::new(13., 2., 3.);
+            look_at = Vec3::new(0., 0., 0.);
+            vfov = 20.;
+        }
     }
 
     // Camera
