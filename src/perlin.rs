@@ -73,6 +73,20 @@ impl Perlin {
 
         perlin_interp(c, u, v, w)
     }
+
+    pub fn turb(&self, p: &Point3, depth: usize) -> f32 {
+        let mut accum = 0.;
+        let mut temp_p = *p;
+        let mut weight = 1.;
+
+        for _i in 0..depth {
+            accum += weight * self.noise(&temp_p);
+            weight *= 0.5;
+            temp_p = 2. * temp_p;
+        }
+
+        accum.abs()
+    }
 }
 
 fn trilinear_interp(c: [[[f32; 2]; 2]; 2], u: f32, v: f32, w: f32) -> f32 {
