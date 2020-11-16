@@ -108,7 +108,7 @@ fn two_perlin_spheres() -> HittableList {
         objects: Vec::new(),
     };
 
-    let texture = NoiseTexture{ noise: Perlin::new() };
+    let texture = NoiseTexture{ noise: Perlin::new(), scale: 4., };
     let material = Rc::new(Lambertian::new_from_texture(Box::new(texture)));
 
     spheres.add(Box::new(Sphere {
