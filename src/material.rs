@@ -118,6 +118,14 @@ pub struct DiffuseLight {
     pub emit: Box<dyn Texture>,
 }
 
+impl DiffuseLight {
+    pub fn new(c: Color) -> Self {
+        Self {
+            emit: Box::new(SolidColor::new_from_color(c)),
+        }
+    }
+}
+
 impl Material for DiffuseLight {
 
     fn emitted(&self, u: f32, v: f32, p: &Point3) -> Color {

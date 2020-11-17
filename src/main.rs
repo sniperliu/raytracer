@@ -16,6 +16,7 @@ mod vec3;
 mod material;
 mod texture;
 mod perlin;
+mod aarect;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
@@ -24,9 +25,9 @@ use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
 use texture::{CheckerTexture, NoiseTexture, ImageTexture};
-use material::{Lambertian, Metal};
-
+use material::{Lambertian, Metal, DiffuseLight};
 use rand::Rng;
+use aarect::{XYRect};
 
 fn ray_color(r: &ray::Ray, background: Color,  w: &HittableList, depth: i32) -> Color {
     if depth <= 0 {
@@ -137,6 +138,33 @@ fn earth() -> HittableList {
     }
 }
 
+fn simple_light() -> HittableList {
+    let mut objects = HittableList {
+        objects: Vec::new(),
+    };
+
+    let texture = NoiseTexture{ noise: Perlin::new(), scale: 4., };
+    let material = Rc::new(Lambertian::new_from_texture(Box::new(texture)));
+
+    objects.add(Box::new(Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        material: material.clone(),
+    }));
+    objects.add(Box::new(Sphere {
+        center: Vec3::new(0., 2., 0.),
+        radius: 2.,
+        material: material.clone(),
+    }));
+    objects.add(Box::new(XYRect {
+        x0: 3., x1: 5., y0: 1., y1: 3., k: -2.,
+        material: Rc::new(DiffuseLight::new(Color(Vec3::new(4., 4., 4.)))),
+    }));
+
+
+    objects
+}
+
 fn random_scene() -> HittableList {
     let mut world = HittableList {
         objects: Vec::new(),
@@ -226,7 +254,7 @@ fn main() {
     let aspect_ratio: f32 = 16.0 / 9.0;
     let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
-    let samples_per_pixel = 100;
+    let mut samples_per_pixel = 100;
     let max_depth = 50;
 
     let world: HittableList;
@@ -259,11 +287,19 @@ fn main() {
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
         },
-        _ => {
+        4 => {
             world = earth();
             background = Color(Vec3::new(0.7, 0.8, 1.));
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
+            vfov = 20.;
+        },
+        _ => {
+            world = simple_light();
+            samples_per_pixel = 400;
+            background = Color(Vec3::new(0., 0., 0.));
+            look_from = Vec3::new(26., 3., 6.);
+            look_at = Vec3::new(0., 2., 0.);
             vfov = 20.;
         }
     }
