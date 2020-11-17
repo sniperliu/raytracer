@@ -28,24 +28,22 @@ use material::{Lambertian, Metal};
 
 use rand::Rng;
 
-fn ray_color(r: &ray::Ray, w: &HittableList, depth: i32) -> color::Color {
+fn ray_color(r: &ray::Ray, background: Color,  w: &HittableList, depth: i32) -> Color {
     if depth <= 0 {
         return color::Color(Vec3::new(0., 0., 0.));
     }
 
+
     if let Some(rec) = w.hit(&r, 0.001, f32::MAX) {
+        let emitted = rec.material.emitted(rec.u, rec.v, &rec.p);
+
         if let Some((scattered, attenuation)) = rec.material.scatter(&r, &rec) {
-            Color(attenuation.0 * ray_color(&scattered, w, depth - 1).0)
+            Color(emitted.0 + attenuation.0 * ray_color(&scattered, background, w, depth - 1).0)
         } else {
-            Color(Vec3::new(0., 0., 0.))
+            emitted
         }
-        // let target = rec.p + rec.normal + random_in_hemisphere(&rec.normal);
-        // let ray = Ray{ origin: rec.p, direction: target - rec.p};
-        // color::Color(0.5 * ray_color(&ray, w, depth - 1).0)
     } else {
-        let direction = r.direction.normalize();
-        let t = 0.5 * (direction.y + 1.);
-        color::Color(vec3::Vec3::new(1., 1., 1.) * (1.0 - t) + t * vec3::Vec3::new(0.5, 0.7, 1.))
+        background
     }
 }
 
@@ -236,9 +234,12 @@ fn main() {
     let look_at;
     let vfov;
     let mut aperture = 0.0;
+    let mut background = Color(Vec3::new(0., 0., 0.));
+
     match 0 {
         1 => {
             world = random_scene();
+            background = Color(Vec3::new(0.7, 0.8, 1.));
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
@@ -246,18 +247,21 @@ fn main() {
         },
         2 => {
             world = two_spheres();
+            background = Color(Vec3::new(0.7, 0.8, 1.));
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
         },
         3 => {
             world = two_perlin_spheres();
+            background = Color(Vec3::new(0.7, 0.8, 1.));
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.0;
         },
         _ => {
             world = earth();
+            background = Color(Vec3::new(0.7, 0.8, 1.));
             look_from = Vec3::new(13., 2., 3.);
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.;
@@ -286,7 +290,7 @@ fn main() {
                 let u = ((i as f32) + rng.gen::<f32>()) / ((image_width - 1) as f32);
                 let v = ((j as f32) + rng.gen::<f32>()) / (image_height - 1) as f32;
                 let r = cam.get_ray(u, v);
-                v_pixel_color += ray_color(&r, &world, max_depth).0;
+                v_pixel_color += ray_color(&r, background, &world, max_depth).0;
             }
 
             write_color(&stdout, Color(v_pixel_color), samples_per_pixel);

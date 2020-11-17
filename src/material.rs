@@ -1,12 +1,16 @@
 use crate::texture::{Texture, SolidColor};
 use crate::sphere::random_in_unit_sphere;
-use crate::vec3::Vec3;
+use crate::vec3::{Point3, Vec3};
 use crate::sphere::random_unit_vector;
 use crate::ray::Ray;
 use crate::hittable::HitRecord;
 use crate::color::Color;
 
 pub trait Material {
+    fn emitted(&self, _u: f32, _v: f32, _p: &Point3) -> Color {
+        Color(Vec3::new(0., 0., 0.))
+    }
+
     fn scatter(&self, spot: &Ray, rec: &HitRecord) -> Option<(Ray, Color)>;
 }
 
@@ -108,4 +112,20 @@ impl Material for Dielectric {
         }
 
     }
+}
+
+pub struct DiffuseLight {
+    pub emit: Box<dyn Texture>,
+}
+
+impl Material for DiffuseLight {
+
+    fn emitted(&self, u: f32, v: f32, p: &Point3) -> Color {
+        self.emit.value(u, v, p)
+    }
+
+    fn scatter(&self, _: &Ray, _: &HitRecord) -> Option<(Ray, Color)> {
+        None
+    }
+
 }
