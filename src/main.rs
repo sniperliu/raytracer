@@ -17,6 +17,7 @@ mod material;
 mod texture;
 mod perlin;
 mod aarect;
+mod r#box;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
@@ -193,6 +194,9 @@ fn cornell_box() -> HittableList {
     objects.add(Box::new(XYRect {
         x0: 0., x1: 555., y0: 0., y1: 555., k: 555., material: white.clone(),
     }));
+
+    objects.add(Box::new(r#box::Box::new(Vec3::new(130., 0., 65.), Vec3::new(295., 165., 230.), white.clone())));
+    objects.add(Box::new(r#box::Box::new(Vec3::new(265., 0., 295.), Vec3::new(430., 330., 460.), white.clone())));
 
     objects
 }
