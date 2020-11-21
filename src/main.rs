@@ -27,7 +27,7 @@ use ray::Ray;
 use texture::{CheckerTexture, NoiseTexture, ImageTexture};
 use material::{Lambertian, Metal, DiffuseLight};
 use rand::Rng;
-use aarect::{XYRect};
+use aarect::{XYRect, YZRect, XZRect};
 
 fn ray_color(r: &ray::Ray, background: Color,  w: &HittableList, depth: i32) -> Color {
     if depth <= 0 {
@@ -165,6 +165,38 @@ fn simple_light() -> HittableList {
     objects
 }
 
+fn cornell_box() -> HittableList {
+    let mut objects = HittableList {
+        objects: Vec::new(),
+    };
+
+    let red = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.65, 0.05, 0.05))));
+    let white = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.73, 0.73, 0.73))));
+    let green = Rc::new(Lambertian::new_from_color(Color(Vec3::new(0.12, 0.45, 0.15))));
+    let light = Rc::new(DiffuseLight::new(Color(Vec3::new(15., 15., 15.))));
+
+    objects.add(Box::new(YZRect {
+        y0: 0., y1: 555., z0: 0., z1: 555., k: 555., material: green.clone(),
+    }));
+    objects.add(Box::new(YZRect {
+        y0: 0., y1: 555., z0: 0., z1: 555., k: 0., material: red.clone(),
+    }));
+    objects.add(Box::new(XZRect {
+        x0: 213., x1: 343., z0: 227., z1: 332., k: 554., material: light.clone(),
+    }));
+    objects.add(Box::new(XZRect {
+        x0: 0., x1: 555., z0: 0., z1: 555., k: 0., material: white.clone(),
+    }));
+    objects.add(Box::new(XZRect {
+        x0: 0., x1: 555., z0: 0., z1: 555., k: 555., material: white.clone(),
+    }));
+    objects.add(Box::new(XYRect {
+        x0: 0., x1: 555., y0: 0., y1: 555., k: 555., material: white.clone(),
+    }));
+
+    objects
+}
+
 fn random_scene() -> HittableList {
     let mut world = HittableList {
         objects: Vec::new(),
@@ -251,9 +283,9 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     // Image
-    let aspect_ratio: f32 = 16.0 / 9.0;
-    let image_width: usize = 400;
-    let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
+    let mut aspect_ratio: f32 = 16.0 / 9.0;
+    let mut image_width: usize = 400;
+    let mut image_height: usize = (image_width as f32 / aspect_ratio) as usize;
     let mut samples_per_pixel = 100;
     let max_depth = 50;
 
@@ -294,13 +326,24 @@ fn main() {
             look_at = Vec3::new(0., 0., 0.);
             vfov = 20.;
         },
-        _ => {
+        5 => {
             world = simple_light();
             samples_per_pixel = 400;
             background = Color(Vec3::new(0., 0., 0.));
             look_from = Vec3::new(26., 3., 6.);
             look_at = Vec3::new(0., 2., 0.);
             vfov = 20.;
+        },
+        _ => {
+            world = cornell_box();
+            aspect_ratio = 1.;
+            image_width = 600;
+            image_height = (image_width as f32 / aspect_ratio) as usize;
+            samples_per_pixel = 200;
+            background = Color(Vec3::new(0., 0., 0.));
+            look_from = Vec3::new(278., 278., -800.);
+            look_at = Vec3::new(278., 278., 0.);
+            vfov = 40.;
         }
     }
 
