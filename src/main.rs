@@ -21,7 +21,7 @@ mod r#box;
 
 use crate::hittable_list::HittableList;
 use camera::Camera;
-use hittable::Hittable;
+use hittable::{Hittable, Translate, RotateY};
 use sphere::{Sphere, MovingSphere, random_in_hemisphere};
 use vec3::Vec3;
 use ray::Ray;
@@ -195,8 +195,14 @@ fn cornell_box() -> HittableList {
         x0: 0., x1: 555., y0: 0., y1: 555., k: 555., material: white.clone(),
     }));
 
-    objects.add(Box::new(r#box::Box::new(Vec3::new(130., 0., 65.), Vec3::new(295., 165., 230.), white.clone())));
-    objects.add(Box::new(r#box::Box::new(Vec3::new(265., 0., 295.), Vec3::new(430., 330., 460.), white.clone())));
+    let box1 = Translate {
+        object: Box::new(RotateY::new(Box::new(r#box::Box::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white.clone())), 15.)),
+        offset: Vec3::new(265., 0., 295.)};
+    objects.add(Box::new(box1));
+    let box2 = Translate {
+        object: Box::new(RotateY::new(Box::new(r#box::Box::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white.clone())), -18.)),
+        offset: Vec3::new(130., 0., 65.),};
+    objects.add(Box::new(box2));
 
     objects
 }
