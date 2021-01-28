@@ -1,1 +1,5 @@
 /target
+/.cargo
+Cargo.lock
+ca.pem
+image.ppm
